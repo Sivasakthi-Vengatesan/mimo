@@ -1,5 +1,10 @@
 # MIMO — Personal Local AI Companion
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-6FFF00?style=for-the-badge&logo=render&logoColor=010828)](https://mimo-roo2.onrender.com/)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?style=for-the-badge&logo=github)](https://github.com/Sivasakthi-Vengatesan/mimo)
+
+🚀 **Live Application Link**: [https://mimo-roo2.onrender.com/](https://mimo-roo2.onrender.com/)
+
 > *"Your personal on-device AI companion in a calm cosmic world. Chat, create assistants, and manage tasks with 100% local privacy."*
 
 MIMO has been completely redesigned with a soft-cosmic aesthetic, deliberate typography, and a clean, uncluttered visual hierarchy. Powered on-device by local Ollama inference (`qwen3.5:2b`), MIMO provides real conversational intelligence, goal breakdown, and custom persona creation without cloud dependencies or subscriptions.
@@ -160,4 +165,13 @@ cd frontend
 npm run dev -- --host 127.0.0.1 --port 5173
 ```
 Visit **`http://127.0.0.1:5173/`** to interact with MIMO.
+
+---
+
+## 🌐 Live Cloud Deployment
+
+- **Production URL**: [https://mimo-roo2.onrender.com/](https://mimo-roo2.onrender.com/)
+- **Hosting Platform**: [Render](https://render.com/)
+- **API Health Check**: [https://mimo-roo2.onrender.com/api/health](https://mimo-roo2.onrender.com/api/health)
+
 
