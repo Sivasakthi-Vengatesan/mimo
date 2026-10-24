@@ -1,0 +1,12 @@
+{
+  "name": "mimo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MIMO - Personal Local AI Companion",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "preview": "node start.js",
+    "start": "node start.js"
+  }
+}

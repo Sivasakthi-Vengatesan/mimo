@@ -1,6 +1,9 @@
+import os
 import logging
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from .schemas import (
     HealthResponse,
     ChatRequest,
@@ -41,14 +44,6 @@ async def startup_event():
         logger.info(f"Ollama connected. Active model: {health.configured_model}. Available: {health.available_models}")
     else:
         logger.warning(f"Ollama not currently reachable: {health.error}")
-
-@app.get("/")
-async def root():
-    return {
-        "name": "MIMO AI Backend",
-        "status": "online",
-        "docs": "/docs"
-    }
 
 @app.get("/api/health", response_model=HealthResponse)
 async def health_check():
@@ -118,3 +113,31 @@ async def breakdown_endpoint(request: TaskBreakdownRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Unable to break down task. Please check local model status."
         )
+
+# Frontend Static / SPA Serving
+FRONTEND_DIST = os.path.abspath(
+    os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "frontend", "dist")
+)
+
+if os.path.exists(FRONTEND_DIST) and os.path.exists(os.path.join(FRONTEND_DIST, "index.html")):
+    assets_dir = os.path.join(FRONTEND_DIST, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        if full_path.startswith("api/") or full_path in ("docs", "openapi.json", "redoc"):
+            raise HTTPException(status_code=404, detail="Not Found")
+        file_path = os.path.join(FRONTEND_DIST, full_path)
+        if full_path and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(FRONTEND_DIST, "index.html"))
+else:
+    @app.get("/")
+    async def root():
+        return {
+            "name": "MIMO AI Backend",
+            "status": "online",
+            "docs": "/docs"
+        }
+
