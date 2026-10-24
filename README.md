@@ -50,38 +50,114 @@ MIMO has been completely redesigned with a soft-cosmic aesthetic, deliberate typ
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ System Architecture
 
-```
-Browser UI (React + Vite + TypeScript + Tailwind v4)
-       │
-       ▼ (HTTP Proxy /api)
-FastAPI Backend (Python 3.13, Uvicorn, Pydantic, HTTPX)
-       │
-       ▼ (HTTP Local API: http://localhost:11434)
-Ollama Server
-       │
-       ▼ (On-Device Inference)
-Qwen 3.5 Model (qwen3.5:2b)
+```mermaid
+flowchart TD
+    subgraph Client["Frontend Client (React 19 + Vite + TypeScript)"]
+        UI["Cosmic UI & Interactive Mascot"]
+        Chat["Companion Chat Panel"]
+        Bots["Mini-Bot Gallery & Forge"]
+        Tasks["Task Hub & Goal Deconstructor"]
+        Storage[("Local Storage Persistence")]
+    end
+
+    subgraph Server["FastAPI Backend (Python 3.11+)"]
+        API["FastAPI Application & Uvicorn"]
+        Routes["API Endpoints: /api/chat, /api/health, /api/tasks"]
+        SPAServe["Static SPA & Assets Mount"]
+        Service["Ollama Service & Persona Engine"]
+    end
+
+    subgraph Inference["Inference & Intelligence Layer"]
+        OllamaDaemon["Local Ollama Daemon (http://localhost:11434)"]
+        QwenModel["Qwen 3.5 2B Model (100% On-Device)"]
+        CloudFallback["Hybrid / Cloud Fallback (Groq, OpenAI, or Cloud Demo)"]
+    end
+
+    UI --> Chat
+    UI --> Bots
+    UI --> Tasks
+    Bots <--> Storage
+    Tasks <--> Storage
+
+    Chat -->|"POST /api/chat"| Routes
+    Tasks -->|"POST /api/tasks/breakdown"| Routes
+    UI -->|"GET /api/health"| Routes
+    Client -->|"GET / and /assets/*"| SPAServe
+
+    Routes --> Service
+    Service -->|"Primary (Local HTTP API)"| OllamaDaemon
+    OllamaDaemon -->|"Sub-second Inference (think=false)"| QwenModel
+    Service -.->|"Fallback if Offline / Cloud"| CloudFallback
 ```
 
-- **Frontend**: `http://127.0.0.1:5173/`
-- **Backend**: `http://127.0.0.1:8000/` (Swagger docs at `/docs`)
-- **Ollama**: `http://localhost:11434/`
+---
+
+## 🔄 Interaction & Data Flow Diagrams
+
+### 1. Companion Chat & Inference Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Spacefarer / User
+    participant UI as React UI (ChatPanel)
+    participant API as FastAPI Router
+    participant Service as Ollama Service
+    participant Ollama as Local Ollama Server
+    participant Model as Qwen 3.5 (2B)
+
+    User->>UI: Types message & presses Enter
+    UI->>UI: Optimistic render message + Mascot transitions to Thinking
+    UI->>API: POST /api/chat (message, bot_id, bounded_history)
+    API->>Service: Resolve active model & format persona prompt
+    Service->>Ollama: POST /api/chat (think=false, stream=false, num_predict=512)
+    Ollama->>Model: Execute on-device neural inference
+    Model-->>Ollama: Raw token output
+    Ollama-->>Service: HTTP 200 JSON Response
+    Service->>Service: Strip reasoning tags (<think>...</think>)
+    Service-->>API: Clean structured reply
+    API-->>UI: 200 OK (reply, bot_id, model)
+    UI->>UI: Append reply + Mascot transitions to Happy / Curious
+    UI-->>User: Displays response with zero cloud latency
+```
+
+### 2. AI Goal Deconstructor ("Break It Down") Flow
+
+```mermaid
+flowchart LR
+    Goal["High-Level Goal\n(e.g., 'Study for ML Exam')"] --> Modal["TaskBreakdownModal"]
+    Modal --> API["POST /api/tasks/breakdown"]
+    API --> SystemPrompt["System Prompt\n(JSON Schema Directive)"]
+    SystemPrompt --> Engine["Ollama / Qwen 3.5 Inference"]
+    Engine --> Parser["JSON Array Parser & Validator"]
+    Parser --> Steps["Structured Sub-Tasks\n(Title, Description, Priority)"]
+    Steps --> TaskBoard["Task Board & Confetti Celebration"]
+```
 
 ---
 
 ## 🚀 Startup Commands (Windows PowerShell)
 
-### Backend
+### Option 1: Unified Full-Stack Runner (Recommended)
 ```powershell
-cd c:\Users\sakth\Downloads\mimo\backend
+node start.js --port 8000
+```
+Visit **`http://localhost:8000/`** — serves both the production React UI and FastAPI backend on a single port connected to your local Ollama.
+
+### Option 2: Development Mode (Hot Reload)
+
+#### Backend
+```powershell
+cd backend
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-### Frontend
+#### Frontend
 ```powershell
-cd c:\Users\sakth\Downloads\mimo\frontend
+cd frontend
 npm run dev -- --host 127.0.0.1 --port 5173
 ```
 Visit **`http://127.0.0.1:5173/`** to interact with MIMO.
+
