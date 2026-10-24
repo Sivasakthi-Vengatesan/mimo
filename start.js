@@ -22,7 +22,7 @@ const distIndex = path.join(__dirname, 'frontend', 'dist', 'index.html');
 if (!fs.existsSync(distIndex)) {
   console.log('[start.js] Frontend dist not found. Building frontend assets...');
   try {
-    execSync('npm --prefix frontend install && npm --prefix frontend run build', {
+    execSync('npm --prefix frontend install --include=dev && npm --prefix frontend run build', {
       stdio: 'inherit',
       cwd: __dirname
     });
